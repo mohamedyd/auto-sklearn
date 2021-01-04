@@ -287,6 +287,14 @@ class AutoML(BaseEstimator):
         # We need to specify the logger_name so that received records
         # are treated under the logger_name ROOT logger setting
         context = multiprocessing.get_context('forkserver')
+        all_loaded_modules = sys.modules.keys()
+        preload = [
+            loaded_module for loaded_module in all_loaded_modules
+            if loaded_module.split('.')[0] in (
+                'smac', 'autosklearn', 'numpy', 'scipy', 'pandas', 'pynisher', 'sklearn',
+            ) and 'logging' not in loaded_module
+        ]
+        context.set_forkserver_preload(preload)
         self.stop_logging_server = context.Event()
         port = context.Value('l')  # be safe by using a long
         port.value = -1
